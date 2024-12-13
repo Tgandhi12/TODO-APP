@@ -1,3 +1,4 @@
+// src/components/TodoForm.tsx
 import React, { useState, FormEvent } from 'react';
 import axios from 'axios';
 
@@ -9,33 +10,28 @@ const TodoForm: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  // Handle form submission
   const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault(); // Prevent page reload
+    e.preventDefault();
 
-    // Create the new Todo data to send to the backend
-    const newTodo = {
-      text,
-      dueDate,
-      scheduledDate,
-      isImportant,
-    };
+    const newTodo = { text, dueDate, scheduledDate, isImportant };
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+      alert('Please log in to create a todo');
+      return;
+    }
 
     try {
-      // Make POST request to backend to save the new Todo at localhost:5000/todos
-      const response = await axios.post('http://localhost:5000/todos', newTodo);
-      console.log(response.data);  // Handle response
+      const response = await axios.post('http://localhost:5000/todos', newTodo, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-      // Show success message
       setSuccessMessage('Todo created successfully!');
-
-      // Clear the form
       setText('');
       setDueDate('');
       setScheduledDate('');
       setIsImportant(false);
-    } catch (err) {
-      // Show error message
+    } catch (error) {
       setError('Failed to create todo. Please try again.');
     }
   };
@@ -80,4 +76,3 @@ const TodoForm: React.FC = () => {
 };
 
 export default TodoForm;
-
